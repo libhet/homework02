@@ -3,4 +3,4 @@ project(homework02 )
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(homework02 main.cpp)
+add_executable(homework02 main.cpp ip_filter.cpp)
