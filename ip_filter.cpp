@@ -49,8 +49,12 @@ namespace CHECK
     };
 }
 
-template<typename ValueType, template<typename T = ValueType> class ContainerType>
-ContainerType<ValueType> split(const std::string &str, char d) {
+template<typename ValueType, template<typename T> class ContainerType>
+class Split {
+public:
+    Split() = default;
+    ~Split() = default;
+ContainerType<ValueType> operator()(const std::string &str, char d) {
     ContainerType<ValueType> r;
     static_assert(CHECK::EmplaceBackExists<ContainerType<ValueType>>::value, "Container doesn't have emplace_back()");
 
@@ -66,26 +70,29 @@ ContainerType<ValueType> split(const std::string &str, char d) {
 
     r.emplace_back(str.substr(start));
 
-    return r;
+    return r;}
 };
 
-template<typename ValueType>
-std::tuple<ValueType> split<ValueType, std::tuple<ValueType>>(const std::string &str, char d) {
-    std::tuple<std::common_type<ValueType>> r;
-    //Создать приведение всех типов к одному внутри тапла. Использовать размер ValueTypes
-    std::string::size_type start = 0;
-    std::string::size_type stop = str.find_first_of(d);
-    while(stop != std::string::npos)
-    {
-        r = std::tuple_cat(r, std::tuple<ValueType>(stoi(str.substr(start, stop - start)))); //Работает только с числами? INT
-    start = stop + 1;
-    stop = str.find_first_of(d, start);
-    }
-
-    r = std::tuple_cat(r, std::tuple<ValueType>(stoi(str.substr(start, stop - start))));
-
-    return r;
-};
+//
+//template<typename ValueType>
+//class Split<ValueType, std::tuple<typename ValueType>> {
+//public:
+//std::tuple<ValueType> operator()(const std::string &str, char d) {
+//    std::tuple<std::common_type<ValueType>> r;
+//    //Создать приведение всех типов к одному внутри тапла. Использовать размер ValueTypes
+//    std::string::size_type start = 0;
+//    std::string::size_type stop = str.find_first_of(d);
+//    while(stop != std::string::npos)
+//    {
+//        r = std::tuple_cat(r, std::tuple<ValueType>(stoi(str.substr(start, stop - start)))); //Работает только с числами? INT
+//    start = stop + 1;
+//    stop = str.find_first_of(d, start);
+//    }
+//
+//    r = std::tuple_cat(r, std::tuple<ValueType>(stoi(str.substr(start, stop - start))));
+//
+//    return r;}
+//};
 
 
 template<typename ValueType, typename... ValueTypes>
@@ -119,12 +126,19 @@ std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> make_tuple_from_vector_of_string 
 //    return s << vs.at(0) << "." << vs.at(1) << "." << vs.at(2) << "." << vs.at(3);
 //}
 
-using ip_type = std::tuple<uint8_t, uint8_t, uint8_t, uint8_t>;
+//using ip_type = std::tuple<uint8_t, uint8_t, uint8_t, uint8_t>;
+using ip_type = std::vector<std::string>;
 using ip_container = std::list<ip_type>;
 
 namespace std {
-    std::ostream &operator<<(std::ostream &os, const ip_type &ip) {
+    template <typename StreamType, typename IpType>
+    StreamType &operator<<(StreamType &os, const IpType &ip) {
+        os << "no specialization for this ip_type" << std::endl;
+        return os;
+    }
 
+    template <>
+    std::ostream &operator<<(std::ostream &os, const std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> &ip) {
         os << std::get<0>(ip) << "."
            << std::get<1>(ip) << "."
            << std::get<2>(ip) << "."
@@ -150,7 +164,7 @@ int main(int argc, char const *argv[])
         for(std::string line; std::getline(std::cin, line);)
         {
             std::vector<std::string> v = split(line, '\t');
-            ip_pool.emplace_back(split<std::string,std::tuple<std::string>>(v.at(0), '.'));
+            ip_pool.emplace_back(Split<ip_type,ip_container>()(v.at(0), '.'));
         }
 
         // TODO reverse lexicographically sort
