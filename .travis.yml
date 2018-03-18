@@ -7,7 +7,7 @@ script:
 - cmake .
 - cmake --build .
 - cmake --build . --target package
-- sudo dpkg -i ip_filter-*.deb && ip_filter
+- sudo dpkg -i ip_filter-*.deb && pwd && ls -l && cat in.txt | ip_filter | md5sum
 deploy:
   provider: script
   skip_cleanup: true
