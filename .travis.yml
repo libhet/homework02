@@ -1,6 +1,5 @@
 language: cpp
 before_script:
-- sudo apt-get install libboost-test-dev -y
 - echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
 - sudo apt-get install libspdlog-dev -y
@@ -9,7 +8,7 @@ script:
 - cmake --build .
 - cmake --build . --target test
 - cmake --build . --target package
-- sudo dpkg -i helloworld-*.deb && helloworld_cli
+- sudo dpkg -i ip_filter-*.deb && ip_filter
 deploy:
   provider: script
   skip_cleanup: true
