@@ -6,7 +6,6 @@ before_script:
 script:
 - cmake .
 - cmake --build .
-- cmake --build . --target test
 - cmake --build . --target package
 - sudo dpkg -i ip_filter-*.deb && ip_filter
 deploy:
