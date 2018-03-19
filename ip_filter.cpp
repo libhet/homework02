@@ -11,19 +11,30 @@
 #include <tuple>
 #include <functional>
 
+#include <chrono>
+
+//using doubleDiff =  std::chrono::duration<double>;
+//using msDiff =  std::chrono::duration<double>;
+//auto start  =  std::chrono::steady_clock::now();
+//auto end   =  std::chrono::steady_clock::now();
+//time_diff diff = end - start;
+//auto elapsed = duration_cast<milliseconds>(end - start);
+
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
 // ("..", '.') -> ["", "", ""]
 // ("11.", '.') -> ["11", ""]
 // (".11", '.') -> ["", "11"]
 // ("11.22", '.') -> ["11", "22"]
-std::vector<std::string> split(const std::string &str, char d)
-{
-    std::vector<std::string> r;
 
-    std::string::size_type start = 0;
-    std::string::size_type stop = str.find_first_of(d);
-    while(stop != std::string::npos)
+template <typename T>
+T split(typename T::value_type const &str, char d) {
+
+    T r;
+
+    typename T::value_type::size_type start = 0;
+    typename T::value_type::size_type stop = str.find_first_of(d);
+        while(stop != std::string::npos)
     {
         r.push_back(str.substr(start, stop - start));
 
@@ -35,6 +46,52 @@ std::vector<std::string> split(const std::string &str, char d)
 
     return r;
 }
+
+std::tuple<uint8_t,uint8_t,uint8_t,uint8_t> split(std::string const &str, char d) {
+
+    std::vector<uint8_t> tv;
+
+    std::string::size_type start = 0;
+    std::string::size_type stop = str.find_first_of(d);
+    while(stop != std::string::npos)
+    {
+        tv.push_back((uint8_t)stoi(str.substr(start, stop - start)));
+
+        start = stop + 1;
+        stop = str.find_first_of(d, start);
+    }
+
+    tv.push_back((uint8_t)stoi(str.substr(start)));
+    auto r = std::make_tuple(tv.at(0),tv.at(1),tv.at(2),tv.at(3));
+    return r;
+}
+
+using ve_str = std::vector<std::string>;
+using li_str = std::list<std::string>;
+using tp_ui8 = std::tuple<uint8_t,uint8_t,uint8_t,uint8_t>;
+
+using ve_tp = std::vector<tp_ui8>;
+using li_tp = std::list<tp_ui8>;
+
+//
+//std::vector<std::string> split(const std::string &str, char d)
+//{
+//    std::vector<std::string> r;
+//
+//    std::string::size_type start = 0;
+//    std::string::size_type stop = str.find_first_of(d);
+//    while(stop != std::string::npos)
+//    {
+//        r.push_back(str.substr(start, stop - start));
+//
+//        start = stop + 1;
+//        stop = str.find_first_of(d, start);
+//    }
+//
+//    r.push_back(str.substr(start));
+//
+//    return r;
+//}
 
 using ip_tuple = std::tuple<uint8_t, uint8_t, uint8_t, uint8_t>;
 using ip_type = std::vector<std::string>;
@@ -55,8 +112,8 @@ int main(int argc, char const *argv[])
 
         for(std::string line; std::getline(std::cin, line);)
         {
-            std::vector<std::string> v = split(line, '\t');
-            ip_pool.push_back(split(v.at(0), '.'));
+            auto v = split<li_str>(line, '\t');
+            ip_pool.push_back(split<ve_str>(*v.begin(), '.'));
         }
 
         // TODO reverse lexicographically sort
